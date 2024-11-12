@@ -51,6 +51,11 @@ int watervalue = 0;
 bool signupOK = false; //status of SignUp
 
 ESP8266WebServer server(80); // init server
+IPAddress local_IP(192,168,1,2); // custom local IP Address
+IPAddress gateway(192, 168, 1, 1); // custom gateway Address
+IPAddress subnet(255, 255, 0, 0); // custom subnet Address
+IPAddress primaryDNS(8, 8, 8, 8); // custom primaryDNS Address
+IPAddress secondaryDNS(8, 8, 4, 4); // custom secondaryDNS Address
 
 
 void setup()
@@ -75,6 +80,7 @@ void setup()
     Serial.println(userWifiInfo.password);
     
     WiFi.mode(WIFI_STA); // setting WiFi mode to station
+    WiFi.config(local_IP, gateway, subnet, primaryDNS, secondaryDNS);
     WiFi.begin(userWifiInfo.ssid, userWifiInfo.password); // conneting to station
 
     // connecting to WiFi
@@ -109,9 +115,6 @@ void setup()
         // setting API and URL in config
         config.api_key = API_KEY;
         config.database_url = DATABASE_URL;
-        // auth.token.uid = "h7zVGQdSrVaAle0RIpDAO3Ho84w2";
-        // auth.user.email = "test123@gmail.com";
-        // auth.user.password = "test123";
 
         if (Firebase.signUp(&config, &auth, "", ""))
         {
@@ -133,6 +136,7 @@ void setup()
     if(openAP)
     {
         WiFi.mode(WIFI_AP);
+        WiFi.softAPConfig(local_IP, gateway, subnet);
         WiFi.softAP("Resource Monitor", "12345678");
         Serial.println("Unable to connect to WiFi");
         Serial.println(WiFi.softAPIP());
@@ -154,7 +158,8 @@ void setup()
 }
 
 void loop()
-{
+{   
+    server.handleClient();
     if (Firebase.ready() && signupOK ){
     // Write an Int number on the database path test/int
     if (Firebase.RTDB.setJSON(&fbdo, "test/data", &data)){

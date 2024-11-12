@@ -3,22 +3,98 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <link rel="icon" type="image/png" href="./idea-min.png">
+    <title>Resource Management</title>
+    <style>
+        #navbar{
+            display: flex;
+            justify-content: space-between;
+            padding: 0rem 0.8rem;
+            align-items: center;
+            border-bottom: 2px solid #525252;
+
+        }
+        #navbar img{
+            width: 2.5rem;
+            height: 2.5rem;
+        }
+        #navbar h3{
+            font-size: 1.5rem;
+            margin: 0;
+        }
+        .container{
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            flex-wrap: wrap;
+            align-content: center;
+            padding-top: 1rem;
+            gap: 1rem;
+            width: 100%;
+        }
+        .container h1{
+            margin: 0;
+            text-align: center;
+        }
+        .formContainer{
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-content: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+            width: fit-content;
+            border: 1px solid black;
+            border-radius: 20px;
+            padding: 2rem;
+        }
+        .formContainer button{
+            margin-top: 1rem;
+            width: fit-content;
+            align-self: center;
+            background-color: #488bf0;
+            color: white;
+            padding: 0.3rem 2rem;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;   
+        }
+        .formContainer button:hover{
+            background-color: #477ed1;
+        }
+        .labelContainer{
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+        }
+        .labelContainer input{
+            border-radius: 20px;
+            border: 1px solid black;
+            padding: 0.2rem 0.5rem;
+        }
+    </style>
 </head>
 <body>
-    <h1>change wifi:</h1>
-    <form action="/" method="post">
-        <label>WiFi SSID:</label>
-        <input type="text" name="ssid">
-        <br>
-        <label>WiFi Password:</label>
-        <input type="password" name="password">
-        <br>
-        <hr>
-        <center>
-            <button type="submit">Change</button>
-        </center>
-        <br>
-    </form>
+    <nav id="navbar">
+        <img src="./idea-min.png">
+        <h3>Resource Management</h3>
+    </nav>
+    <div class="container">
+        <h1>Setup New WiFi</h1>
+        <form action="/" method="post" class="formContainer">
+            <div class="labelContainer">
+                <label>SSID</label>
+                <input type="text" name="ssid" placeholder="WiFi Name">
+            </div>
+
+            <div class="labelContainer">
+                <label>PASSWORD</label>
+                <input type="password" name="password" placeholder="WiFi password">
+            </div>
+            <button type="submit">Setup</button>
+        </form>
+    </div>
 </body>
 </html>
