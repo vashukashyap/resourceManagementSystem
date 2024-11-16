@@ -8,25 +8,6 @@
 #include <FirebaseJson.h>
 
 
-
-
-void handlePortal(); // handle for local webpages
-void resetEEPROM(struct WiFiInfo WiFiInfo); // clear store WiFi password
-WiFiInfo readWiFiInfo();
-void writeWiFiInfo(const WiFiInfo&);
-File readHTMLFile();
-
-
-// FireBase URL and API 
-#define DATABASE_URL "YOUR-FIREBASE-REALTIME-DATABASE-URL"
-#define API_KEY "YOUR-FIREBSE-API"
-
-// PINS
-#define INBUILD_LED D4
-#define WATER_SENSOR_PIN A0
-
-
-
 // structure for storing wifi information
 struct WiFiInfo
 {
@@ -34,6 +15,23 @@ struct WiFiInfo
     char password[30];
 
 } userWifiInfo;
+
+
+
+
+void handlePortal(); // handle for local webpages
+WiFiInfo readWiFiInfo();
+bool writeWiFiInfo(const WiFiInfo&);
+File readHTMLFile();
+
+
+// FireBase URL and API 
+#define DATABASE_URL "https://realtime-database-ee4ee-default-rtdb.firebaseio.com/"
+#define API_KEY "AIzaSyCb1CLooq1gSSUj6g1x8kGJ8smIcazA3VA"
+
+// PINS
+#define INBUILD_LED D4
+#define WATER_SENSOR_PIN A0
 
 
 FirebaseData fbdo; // firebase object
@@ -72,9 +70,6 @@ void setup()
 
 
     userWifiInfo = readWiFiInfo();
-
-    // EEPROM.begin(sizeof(struct WiFiInfo)); //init EEPROM
-    // EEPROM.get(0, userWifiInfo); // getting WiFi info from EEPROM
 
     Serial.println(userWifiInfo.ssid);
     Serial.println(userWifiInfo.password);
@@ -134,10 +129,10 @@ void setup()
 
     // turning on AP if unable to connect to WiFi
     if(openAP)
-    {
-        WiFi.mode(WIFI_AP);
+    {   
+        Serial.println(WiFi.mode(WIFI_AP));
         WiFi.softAPConfig(local_IP, gateway, subnet);
-        WiFi.softAP("Resource Monitor", "12345678");
+        Serial.println(WiFi.softAP("Resource Monitor", "12345678"));
         Serial.println("Unable to connect to WiFi");
         Serial.println(WiFi.softAPIP());
         digitalWrite(INBUILD_LED, HIGH);
@@ -162,19 +157,20 @@ void loop()
     server.handleClient();
     if (Firebase.ready() && signupOK ){
     // Write an Int number on the database path test/int
-    if (Firebase.RTDB.setJSON(&fbdo, "test/data", &data)){
-      Serial.println("PASSED");
-      Serial.println("PATH: " + fbdo.dataPath());
-      Serial.println("TYPE: " + fbdo.dataType());
-    }
-    else {
-      Serial.println("FAILED");
-      Serial.println("REASON: " + fbdo.errorReason());
-    }
+    // if (Firebase.RTDB.setJSON(&fbdo, "test/data", &data)){
+    //   Serial.println("PASSED");
+    //   Serial.println("PATH: " + fbdo.dataPath());
+    //   Serial.println("TYPE: " + fbdo.dataType());
+    // }
+    // else {
+    //   Serial.println("FAILED");
+    //   Serial.println("REASON: " + fbdo.errorReason());
+    // }
+    Serial.print(".");
     }
 
-    watervalue = analogRead(WATER_SENSOR_PIN);
-    data.set("waterValue", watervalue);
+    // watervalue = analogRead(WATER_SENSOR_PIN);
+    // data.set("waterValue", watervalue);
     
 }
 
@@ -189,9 +185,18 @@ void handlePortal()
         strncpy(userWifiInfo.password, server.arg("password").c_str(), sizeof(userWifiInfo.password));
         userWifiInfo.password[server.arg("password").length()] = '\0';
 
-        writeWiFiInfo(userWifiInfo);
+        if(writeWiFiInfo(userWifiInfo))
+        {
+            server.send(200, "text/html", "<html><body>YOUR setting is setup successfully. restarting esp...</body></html>");
+            delay(1000);
+            ESP.restart();
+        }
+        else
+        {
+            server.send(500, "text/html", "<html><body>UNABLE to setup your WiFi. try again.</body></html>");
+        }
 
-        server.send(200, "text/html", "<html><body>YOUR setting is setup successfully</body></html>");
+        
     }
 
     if(server.method() == HTTP_GET)
@@ -222,18 +227,20 @@ WiFiInfo readWiFiInfo()
 
 
 
-void writeWiFiInfo(const WiFiInfo& userWifiInfo)
+bool writeWiFiInfo(const WiFiInfo& userWifiInfo)
 {
     File configFile = LittleFS.open("/config.txt","w");
     if(!configFile)
     {
         Serial.println("[writing] : unable to open file");
+        return false;
     }
     else
     {
         Serial.println("[writing] : file available");
         configFile.write((uint8_t*)&userWifiInfo, sizeof(WiFiInfo));
         configFile.close();
+        return true;
     }
 }
 
