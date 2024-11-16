@@ -26,8 +26,8 @@ File readHTMLFile();
 
 
 // FireBase URL and API 
-#define DATABASE_URL "https://realtime-database-ee4ee-default-rtdb.firebaseio.com/"
-#define API_KEY "AIzaSyCb1CLooq1gSSUj6g1x8kGJ8smIcazA3VA"
+#define DATABASE_URL ""
+#define API_KEY ""
 
 // PINS
 #define INBUILD_LED D4
